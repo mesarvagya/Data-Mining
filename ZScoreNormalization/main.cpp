@@ -18,7 +18,6 @@ private:
     std::string input_file;
     std::string output_file;
     std::string class_name;
-    void preserve_header();
     bool data_begin;
     bool header_begin;
     std::vector<std::string> header_data;
