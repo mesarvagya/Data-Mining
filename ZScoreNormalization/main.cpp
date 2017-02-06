@@ -26,6 +26,8 @@ private:
     int attrib_count;
     std::vector<float> compute_mean_std(std::vector<float>data);
     int skip_attribute_number;
+    std::vector<float> mean_vector;
+    std::vector<float> std_vector;
     
 public:
     ARFFParser(std::string input_file, std::string output_file, std::string class_name);
@@ -51,8 +53,6 @@ void ARFFParser::parse(){
     attrib_count = 0;
     skip_attribute_number = 0;
     std::string attribute_class = "@attribute " + std::string(class_name);
-    std::cout << "attribute class " << attribute_class << std::endl;
-    
     while (std::getline(filestream, line)){
         if(line.empty())
             continue;
@@ -77,12 +77,10 @@ void ARFFParser::parse(){
             std::size_t pos2 = line.find(attribute_class);
             
             if(pos != std::string::npos && pos2 != std::string::npos){
-                std::cout << "found a class attribute" << std::endl;
                 skip_attribute_number++;
                 attrib_count++;
             }
             else if (pos != std::string::npos){
-                std::cout << "found a simple attribute" << std::endl;
                 skip_attribute_number++;
                 attrib_count++;
             }
@@ -110,7 +108,6 @@ void ARFFParser::print_header(){
     }
 }
 void ARFFParser::print_data(){
-    std::cout << "Attrib count " << attrib_count << std::endl;
     for(int i(0); i < attrib_count; i++){
         for(auto row: data){
             std::cout << row.at(i) << std::endl;
@@ -119,7 +116,7 @@ void ARFFParser::print_data(){
 }
 
 void ARFFParser::computeZScoreNormalization(){
-    std::cout << "Attrib count " << attrib_count << std::endl;
+    //std::cout << "Attrib count " << attrib_count << std::endl;
     std::vector<std::vector<float>> computed_values;
     for(int i(0); i < attrib_count; i++){
         if(i == skip_attribute_number - 1){
@@ -139,37 +136,49 @@ void ARFFParser::computeZScoreNormalization(){
     }
     
     std::ofstream off(output_file);
-    std::cout << "Writing headers" << std::endl;
+    std::ofstream off_mean_std("meanstd.arff");
     
     for(auto row: header_data){
         off << row;
     }
-    std::cout << "Writing normalized data" << std::endl;
     
+    for(auto row: header_data){
+        off_mean_std << row;
+    }
+    //std::cout << "Writing normalized data" << std::endl;
     for(int j(0); j < computed_values[0].size(); j++){
         for(int i(0); i < attrib_count; i++){
             off << computed_values.at(i).at(j) << " ";
         }
-        off << "\r\n";
+        off << "\n";
     }
+    
+    for(auto item: mean_vector){
+        off_mean_std << item << " ";
+    }
+    off_mean_std << "\n";
+    for(auto item: std_vector){
+        off_mean_std << item << " ";
+    }
+    off_mean_std << "\n";
     off.close();
-    std::cout << "Please open output.arff file." << std::endl;
+    off_mean_std.close();
 }
 
 std::vector<float> ARFFParser::compute_mean_std(std::vector<float>data){
-    float sum1(0), sum2(0), sigma;
+    float sum1(0), sum2(0), variance, sigma;
     for(auto it: data){
         sum1 += it;
     }
     int size = data.size();
     float mean = sum1/size;
-    std::cout << "Mean " << mean << std::endl;
+    mean_vector.push_back(mean);
     for(auto it: data){
         sum2 += pow((it-mean),2);
     }
-    sigma = sum2/(size-1);
-    std::cout << "variance " << sigma << std::endl;
-    std::cout << "sigma " << sqrt(sigma) << std::endl;
+    variance = sum2/(size);
+    sigma = sqrt(variance);
+    std_vector.push_back(sigma);
     std::vector<float> temp;
     for(auto it: data){
         temp.push_back((it-mean)/sigma);
@@ -192,8 +201,6 @@ int main(int argc, const char * argv[]) {
     
     ARFFParser a = ARFFParser(file_name, "output.arff", class_name);
     a.parse();
-    //a.print_header();
     a.computeZScoreNormalization();
-    //a.print_data();
     return 0;
 }
