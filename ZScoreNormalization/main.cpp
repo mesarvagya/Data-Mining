@@ -18,7 +18,6 @@ private:
     std::string input_file;
     std::string output_file;
     std::string class_name;
-    void preserve_header();
     bool data_begin;
     bool header_begin;
     std::vector<std::string> header_data;
@@ -122,7 +121,6 @@ void ARFFParser::print_data(){
 }
 
 void ARFFParser::computeZScoreNormalization(){
-    //std::cout << "Attrib count " << attrib_count << std::endl;
     std::vector<std::vector<float>> computed_values;
     for(int i(0); i < attrib_count; i++){
         if(i == skip_attribute_number){
@@ -151,7 +149,7 @@ void ARFFParser::computeZScoreNormalization(){
     for(auto row: header_data){
         off_mean_std << row;
     }
-    //std::cout << "Writing normalized data" << std::endl;
+    
     for(int j(0); j < computed_values[0].size(); j++){
         for(int i(0); i < attrib_count; i++){
             off << computed_values.at(i).at(j) << " ";
