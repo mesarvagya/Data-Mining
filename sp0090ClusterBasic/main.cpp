@@ -11,7 +11,9 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
-#import <cmath>
+#include <cmath>
+#include <ctime>
+#include <map>
 
 class ARFFParser{
     
@@ -216,6 +218,9 @@ std::vector<std::vector<float>> ARFFParser::get_row_data_normalized(){
             }
 
     }
+    else{
+        all_row_data = data;
+    }
     return all_row_data;
 }
 
@@ -230,8 +235,17 @@ private:
     
 public:
     KMeansBasic(std::string input_file, int clusters, bool normalize, std::string class_name);
-    void setRowData(std::vector<std::vector<float> > row_data);
-    void parseARFF();
+    void parseARFFandSetData();
+    void startClustering();
+    bool checkIndexInArray(int index, std::vector<int>arr);
+    float getDistance(std::vector<float> x, std::vector<float> y);
+    std::vector<int> getRandomIndexes(int cluster, int data_size);
+    bool convergenceCondition(std::vector<std::vector<float>> x,std::vector<std::vector<float>> y );
+    void KMeans(std::vector<std::vector<float>>input_data, int total_clusters);
+    std::vector<std::vector<float>> get_whole_data(){
+        return row_data;
+    }
+    
 };
 
 KMeansBasic::KMeansBasic(std::string input_file, int clusters, bool normalize, std::string class_name){
@@ -241,24 +255,181 @@ KMeansBasic::KMeansBasic(std::string input_file, int clusters, bool normalize, s
     this->class_name = class_name;
 }
 
-void KMeansBasic::parseARFF(){
+void KMeansBasic::parseARFFandSetData(){
     ARFFParser arff(input_file,class_name, normalize);
     arff.parse();
-    arff.get_row_data_normalized();
-    
+    row_data = arff.get_row_data_normalized();
 }
 
+std::vector<int> KMeansBasic::getRandomIndexes(int cluster, int data_size){
+    srand(time(NULL));
+    std::vector<int> random_indexes;
+    for(int i=0; i < cluster; ++i){
+        int random;
+        do{
+            random = rand() % data_size;
+        }while(checkIndexInArray(random, random_indexes));
+        random_indexes.push_back(random);
+    }
+    return random_indexes;
+}
+
+bool KMeansBasic::convergenceCondition(std::vector<std::vector<float>> x,std::vector<std::vector<float>> y ){
+    bool flag = true;
+    int vector_size = x.size();
+    for(int i=0; i<vector_size; i++){
+        std::vector<float> x_point = x.at(i);
+        std::vector<float> y_point = y.at(i);
+        int point_size = x_point.size();
+        for(int j=0; j<point_size; j++){
+            if(x_point.at(j) != y_point.at(j)){
+                return false;
+            }
+        }
+    }
+    return flag;
+}
+/*
+void KMeansBasic::startClustering(){
+    int a = clusters;
+    std::vector<int> random_indexes = getRandomIndexes();
+    std::vector<std::vector<float>> centroids;
+    bool convergence = false;
+    for(auto it:random_indexes)
+        centroids.push_back(row_data.at(it));
+    std::map<int, std::vector<std::vector<float>>> clusters_points;
+    std::vector<int> cluster_index_for_file;
+    do{
+        for(int i=0; i < clusters; i++){
+            clusters_points[i] = {};
+        }
+        cluster_index_for_file = {};
+        for(auto it1: row_data){
+            float min_distance = 99999999999;
+            float min_index = -1;
+            for(int i=0; i<centroids.size(); ++i){
+                float temp = getDistance(it1, centroids.at(i));
+                if(temp < min_distance){
+                    min_distance = temp;
+                    min_index = i;
+                }
+            }
+        //assign it1 to index of it2
+        clusters_points[min_index].push_back(it1);
+        cluster_index_for_file.push_back(min_index);
+        }
+        //recalculate k means
+        std::vector<std::vector<float>> all_temp_centroids;
+        
+        for(int i=0; i< clusters; i++){
+            
+            std::vector<std::vector<float>> points = clusters_points[i];
+            int arity = points[0].size();
+            int num_points = points.size();
+            
+            std::vector<float> single_centroid;
+            for(int i=0; i<arity; i++){
+                float temp_sum = 0;
+                for(int j=0; j<num_points; j++){
+                    temp_sum += points.at(j).at(i);
+                }
+                single_centroid.push_back(temp_sum/num_points);
+            }
+            all_temp_centroids.push_back(single_centroid);
+        }
+        convergence = convergenceCondition(centroids, all_temp_centroids);
+        centroids = all_temp_centroids;
+        
+    }while(!convergence);//continue if k means are not the same as previous
+    
+    std::cout << ""<<std::endl;
+}
+*/
+void KMeansBasic::KMeans(std::vector<std::vector<float>>input_data, int total_clusters){
+    std::vector<int> random_indexes = getRandomIndexes(total_clusters, input_data.size());
+    std::vector<std::vector<float>> centroids;
+    bool convergence = false;
+    for(auto it:random_indexes)
+        centroids.push_back(input_data.at(it));
+    std::map<int, std::vector<std::vector<float>>> clusters_points;
+    std::vector<int> cluster_index_for_file;
+    do{
+        for(int i=0; i < clusters; i++){
+            clusters_points[i] = {};
+        }
+        cluster_index_for_file = {};
+        for(auto it1: input_data){
+            float min_distance = 99999999999;
+            float min_index = -1;
+            for(int i=0; i<centroids.size(); ++i){
+                float temp = getDistance(it1, centroids.at(i));
+                if(temp < min_distance){
+                    min_distance = temp;
+                    min_index = i;
+                }
+            }
+            //assign it1 to index of it2
+            clusters_points[min_index].push_back(it1);
+            cluster_index_for_file.push_back(min_index);
+        }
+        //recalculate k means
+        std::vector<std::vector<float>> all_temp_centroids;
+        
+        for(int i=0; i< clusters; i++){
+            
+            std::vector<std::vector<float>> points = clusters_points[i];
+            int arity = points[0].size();
+            int num_points = points.size();
+            
+            std::vector<float> single_centroid;
+            for(int i=0; i<arity; i++){
+                float temp_sum = 0;
+                for(int j=0; j<num_points; j++){
+                    temp_sum += points.at(j).at(i);
+                }
+                single_centroid.push_back(temp_sum/num_points);
+            }
+            all_temp_centroids.push_back(single_centroid);
+        }
+        convergence = convergenceCondition(centroids, all_temp_centroids);
+        centroids = all_temp_centroids;
+        
+    }while(!convergence);//continue if k means are not the same as previous
+    
+    std::cout << ""<<std::endl;
+}
+
+bool KMeansBasic::checkIndexInArray(int index, std::vector<int> arr)
+{
+    bool flag = false;
+    for(auto it: arr){
+        if(it == index)
+            flag = true;
+    }
+    return flag;
+}
+
+float KMeansBasic::getDistance(std::vector<float> x, std::vector<float> y){
+    int len = x.size();
+    float dist = 0;
+    for(int i=0; i < len; i++){
+        dist += pow((x.at(i) - y.at(i)), 2);
+    }
+    dist = pow(dist, 0.5);
+    return dist;
+}
+                
 int main(int argc, const char * argv[]) {
-    /*if(argc < 5){
+    if(argc < 5){
         std::cout << "please run program as program -i <input_file> -k <Number_of_cluster> and other optional arguments (-normalize, -c)" << std::endl;
         exit(1);
     }
-     */
+    
     std::string class_name = "undefined_class_name";
-    std::string file_name = "/Users/sarvagya/Downloads/kmtest.arff";
-    bool normalize = true;
-    int cluster = 4;
-    /*for(int i=1; i < argc; i++){
+    std::string file_name;
+    bool normalize = false;
+    int cluster;
+    for(int i=1; i < argc; i++){
         if(std::string(argv[i]) == "-c")
             class_name = std::string(argv[i+1]);
         else if(std::string(argv[i]) == "-i")
@@ -267,11 +438,13 @@ int main(int argc, const char * argv[]) {
             cluster = std::stoi(argv[i+1]);
         else if(std::string(argv[i]) == "-normalize")
             normalize = true;
-    }*/
+    }
     std::cout << class_name << file_name << normalize << cluster << std::endl;
     KMeansBasic kmeans(file_name, cluster, normalize, class_name);
-    kmeans.parseARFF();
-    
+    kmeans.parseARFFandSetData();
+    auto data = kmeans.get_whole_data();
+    kmeans.KMeans(data, cluster)
+    ;
     
     // ARFFParser a = ARFFParser(file_name, "sp0090Normalize" + file_name, class_name);
     //a.parse();
