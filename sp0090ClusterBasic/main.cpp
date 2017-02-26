@@ -41,6 +41,15 @@ public:
     std::vector<std::vector<float>> get_row_data();
     std::vector<std::vector<float>> get_row_data_normalized();
     
+    std::vector<float> get_mean_data(){
+        return mean_vector;
+    }
+    
+    std::vector<float> get_std_data(){
+        return std_vector;
+    }
+
+    
 };
 
 ARFFParser::ARFFParser(std::string input_file, std::string class_name, bool normalize){
@@ -74,7 +83,7 @@ void ARFFParser::parse(){
         }
         pos = line.find("@data");
         if(pos != std::string::npos){
-            header_data.push_back(line);
+           // header_data.push_back(line);
             data_begin = true;
             header_begin = false;
             continue;
@@ -232,6 +241,13 @@ private:
     bool normalize;
     std::string class_name;
     std::vector<std::vector<float> > row_data;
+    std::vector<std::string> header_data;
+    std::map<int, std::vector<std::vector<float>>> clusters_points_final;
+    std::vector<int> cluster_index_for_file_final;
+    std::vector<std::vector<float>> centroids_final;
+    std::vector<float> mean_data;
+    std::vector<float> std_data;
+    std::map<int, std::vector<float>> map_std_mean;
     
 public:
     KMeansBasic(std::string input_file, int clusters, bool normalize, std::string class_name);
@@ -245,6 +261,7 @@ public:
     std::vector<std::vector<float>> get_whole_data(){
         return row_data;
     }
+    void write_ouput_to_file();
     
 };
 
@@ -259,6 +276,17 @@ void KMeansBasic::parseARFFandSetData(){
     ARFFParser arff(input_file,class_name, normalize);
     arff.parse();
     row_data = arff.get_row_data_normalized();
+    header_data = arff.get_header_data();
+    if(normalize){
+        mean_data = arff.get_mean_data();
+        std_data = arff.get_std_data();
+        for(int i=0; i < mean_data.size(); i++){
+            std::vector<float> data;
+            data.push_back(mean_data[i]);
+            data.push_back(std_data[i]);
+            map_std_mean[i] = data;
+        }
+    }
 }
 
 std::vector<int> KMeansBasic::getRandomIndexes(int cluster, int data_size){
@@ -289,62 +317,7 @@ bool KMeansBasic::convergenceCondition(std::vector<std::vector<float>> x,std::ve
     }
     return flag;
 }
-/*
-void KMeansBasic::startClustering(){
-    int a = clusters;
-    std::vector<int> random_indexes = getRandomIndexes();
-    std::vector<std::vector<float>> centroids;
-    bool convergence = false;
-    for(auto it:random_indexes)
-        centroids.push_back(row_data.at(it));
-    std::map<int, std::vector<std::vector<float>>> clusters_points;
-    std::vector<int> cluster_index_for_file;
-    do{
-        for(int i=0; i < clusters; i++){
-            clusters_points[i] = {};
-        }
-        cluster_index_for_file = {};
-        for(auto it1: row_data){
-            float min_distance = 99999999999;
-            float min_index = -1;
-            for(int i=0; i<centroids.size(); ++i){
-                float temp = getDistance(it1, centroids.at(i));
-                if(temp < min_distance){
-                    min_distance = temp;
-                    min_index = i;
-                }
-            }
-        //assign it1 to index of it2
-        clusters_points[min_index].push_back(it1);
-        cluster_index_for_file.push_back(min_index);
-        }
-        //recalculate k means
-        std::vector<std::vector<float>> all_temp_centroids;
-        
-        for(int i=0; i< clusters; i++){
-            
-            std::vector<std::vector<float>> points = clusters_points[i];
-            int arity = points[0].size();
-            int num_points = points.size();
-            
-            std::vector<float> single_centroid;
-            for(int i=0; i<arity; i++){
-                float temp_sum = 0;
-                for(int j=0; j<num_points; j++){
-                    temp_sum += points.at(j).at(i);
-                }
-                single_centroid.push_back(temp_sum/num_points);
-            }
-            all_temp_centroids.push_back(single_centroid);
-        }
-        convergence = convergenceCondition(centroids, all_temp_centroids);
-        centroids = all_temp_centroids;
-        
-    }while(!convergence);//continue if k means are not the same as previous
-    
-    std::cout << ""<<std::endl;
-}
-*/
+
 void KMeansBasic::KMeans(std::vector<std::vector<float>>input_data, int total_clusters){
     std::vector<int> random_indexes = getRandomIndexes(total_clusters, input_data.size());
     std::vector<std::vector<float>> centroids;
@@ -353,7 +326,8 @@ void KMeansBasic::KMeans(std::vector<std::vector<float>>input_data, int total_cl
         centroids.push_back(input_data.at(it));
     std::map<int, std::vector<std::vector<float>>> clusters_points;
     std::vector<int> cluster_index_for_file;
-    do{
+    do
+    {
         for(int i=0; i < clusters; i++){
             clusters_points[i] = {};
         }
@@ -394,9 +368,13 @@ void KMeansBasic::KMeans(std::vector<std::vector<float>>input_data, int total_cl
         convergence = convergenceCondition(centroids, all_temp_centroids);
         centroids = all_temp_centroids;
         
-    }while(!convergence);//continue if k means are not the same as previous
+    }
+    while(!convergence);//continue if k means are not the same as previous
     
     std::cout << ""<<std::endl;
+    cluster_index_for_file_final = cluster_index_for_file;
+    clusters_points_final = clusters_points;
+    centroids_final = centroids;
 }
 
 bool KMeansBasic::checkIndexInArray(int index, std::vector<int> arr)
@@ -417,6 +395,127 @@ float KMeansBasic::getDistance(std::vector<float> x, std::vector<float> y){
     }
     dist = pow(dist, 0.5);
     return dist;
+}
+
+void KMeansBasic::write_ouput_to_file(){
+    if(normalize){
+        //un normalize the data and write it into files.
+        std::string clusters_center_basic_normalized = "sp0090ClusterCenterNormalizedBasic" + std::to_string(clusters) + input_file;
+        std::string clusters_points_basic_normalized = "sp0090ClusteringNormalizedBasic" + std::to_string(clusters) + input_file;
+        std::string clusters_center_basic_unnormalized = "sp0090ClusterCenterUnnormalizedBasic" + std::to_string(clusters) + input_file;
+        std::string clusters_points_basic_unnormalized = "sp0090ClusteringUnnormalizedBasic" + std::to_string(clusters) + input_file;
+        
+        
+        std::ofstream off(clusters_center_basic_normalized);
+        for(auto it: header_data){
+            off << it;
+        }
+        off << "@attribute cluster real\n";
+        off << "@data\n";
+        int cluster = 0;
+        for(auto key: centroids_final){
+            for(auto item: key){
+                off << std::to_string(item) << " ";
+            }
+            off << std::to_string(cluster) << " \n";
+            cluster++;
+        }
+        off.close();
+        
+        
+        std::ofstream off_points(clusters_points_basic_normalized);
+        for(auto it: header_data){
+            off_points << it;
+        }
+        off_points << "@attribute cluster real\n";
+        off_points << "@data\n";
+        for(int i=0; i < cluster_index_for_file_final.size(); i++){
+            int cluster_num = cluster_index_for_file_final[i];
+            for(auto data: row_data.at(i)){
+                off_points << std::to_string(data) << " ";
+            }
+            off_points << std::to_string(cluster_num) << " \n";
+        }
+        off_points.close();
+        
+        std::ofstream off_unnorm(clusters_center_basic_unnormalized);
+        for(auto it: header_data){
+            off_unnorm << it;
+        }
+        off_unnorm << "@attribute cluster real\n";
+        off_unnorm << "@data\n";
+        cluster = 0;
+        for(auto key: centroids_final){
+            int column = 0;
+            for(auto item: key){
+                item = item * map_std_mean[column][1] + map_std_mean[column][0];
+                off_unnorm << item << " ";
+                column++;
+            }
+            off_unnorm << std::to_string(cluster) << " \n";
+            cluster++;
+        }
+        off_unnorm.close();
+        
+        std::ofstream off_points_unnorm(clusters_points_basic_unnormalized);
+        for(auto it: header_data){
+            off_points_unnorm << it;
+        }
+        off_points_unnorm << "@attribute cluster real\n";
+        off_points_unnorm << "@data\n";
+        for(int i=0; i < cluster_index_for_file_final.size(); i++){
+            int cluster_num = cluster_index_for_file_final[i];
+            int column = 0;
+            for(auto data: row_data.at(i)){
+                data = data * map_std_mean[column][1] + map_std_mean[column][0];
+                off_points_unnorm << data << " ";
+                column ++;
+            }
+            off_points_unnorm << cluster_num << " \n";
+        }
+        off_points_unnorm.close();
+
+
+        
+    }
+    else{
+        // just write data
+        
+        std::string clusters_center_basic = "sp0090ClusterCenterBasic" + std::to_string(clusters) + input_file;
+        std::string clusters_points_basic = "sp0090ClusteringBasic" + std::to_string(clusters) + input_file;
+
+        std::ofstream off(clusters_center_basic);
+        for(auto it: header_data){
+            off << it;
+        }
+        off << "@attribute cluster real\n";
+        off << "@data\n";
+        int cluster = 0;
+        for(auto key: centroids_final){
+            for(auto item: key){
+                off << std::to_string(item) << " ";
+            }
+            off << std::to_string(cluster) << " \n";
+            cluster++;
+        }
+        off.close();
+        
+        
+        std::ofstream off_points(clusters_points_basic);
+        for(auto it: header_data){
+            off_points << it;
+        }
+        off_points << "@attribute cluster real\n";
+        off_points << "@data\n";
+        for(int i=0; i < cluster_index_for_file_final.size(); i++){
+            int cluster_num = cluster_index_for_file_final[i];
+            for(auto data: row_data.at(i)){
+                off_points << std::to_string(data) << " ";
+            }
+            off_points << std::to_string(cluster_num) << " \n";
+        }
+        off_points.close();
+    }
 }
                 
 int main(int argc, const char * argv[]) {
@@ -443,8 +542,8 @@ int main(int argc, const char * argv[]) {
     KMeansBasic kmeans(file_name, cluster, normalize, class_name);
     kmeans.parseARFFandSetData();
     auto data = kmeans.get_whole_data();
-    kmeans.KMeans(data, cluster)
-    ;
+    kmeans.KMeans(data, cluster);
+    kmeans.write_ouput_to_file();
     
     // ARFFParser a = ARFFParser(file_name, "sp0090Normalize" + file_name, class_name);
     //a.parse();
