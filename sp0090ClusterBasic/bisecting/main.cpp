@@ -48,7 +48,7 @@ public:
     std::vector<float> get_std_data(){
         return std_vector;
     }
-
+    
     
 };
 
@@ -83,7 +83,7 @@ void ARFFParser::parse(){
         }
         pos = line.find("@data");
         if(pos != std::string::npos){
-           // header_data.push_back(line);
+            // header_data.push_back(line);
             data_begin = true;
             header_begin = false;
             continue;
@@ -155,16 +155,16 @@ void ARFFParser::computeZScoreNormalization(){
     }
     
     /*for(auto row: header_data){
-        off << row;
-    }
-    */
+     off << row;
+     }
+     */
     
     for(int j(0); j < computed_values[0].size(); j++){
         for(int i(0); i < attrib_count; i++){
             std::cout << computed_values.at(i).at(j) << " ";
         }
     }
-
+    
 }
 
 std::vector<float> ARFFParser::compute_mean_std(std::vector<float>data){
@@ -224,8 +224,8 @@ std::vector<std::vector<float>> ARFFParser::get_row_data_normalized(){
                 row_data.push_back(computed_values.at(i).at(j));
             }
             all_row_data.push_back(row_data);
-            }
-
+        }
+        
     }
     else{
         all_row_data = data;
@@ -257,8 +257,9 @@ public:
     float getDistance(std::vector<float> x, std::vector<float> y);
     std::vector<int> getRandomIndexes(int cluster, int data_size);
     bool convergenceCondition(std::vector<std::vector<float>> x,std::vector<std::vector<float>> y );
-    void KMeans(std::vector<std::vector<float>>input_data, int total_clusters);
-
+    std::map<int, std::vector<std::vector<float>>> KMeans(std::vector<std::vector<float>>input_data, int total_clusters);
+    void bisectingKmeans(std::vector<std::vector<float>>, int total_clusters);
+    float getSumOfSquaredError(std::vector<std::vector<float>> cluster, std::vector<float> centroid);
     std::vector<std::vector<float>> get_whole_data(){
         return row_data;
     }
@@ -320,6 +321,7 @@ bool KMeansBasic::convergenceCondition(std::vector<std::vector<float>> x,std::ve
 }
 
 std::map<int, std::vector<std::vector<float>>> KMeansBasic::KMeans(std::vector<std::vector<float>>input_data, int total_clusters){
+    int clusters = total_clusters;
     std::vector<int> random_indexes = getRandomIndexes(total_clusters, input_data.size());
     std::vector<std::vector<float>> centroids;
     bool convergence = false;
@@ -372,11 +374,72 @@ std::map<int, std::vector<std::vector<float>>> KMeansBasic::KMeans(std::vector<s
     }
     while(!convergence);//continue if k means are not the same as previous
     
-    // std::cout << ""<<std::endl;
-    // cluster_index_for_file_final = cluster_index_for_file;
-    // clusters_points_final = clusters_points;
-    // centroids_final = centroids;
-    return clusters_points
+    std::cout << ""<<std::endl;
+    cluster_index_for_file_final = cluster_index_for_file;
+    clusters_points_final = clusters_points;
+    centroids_final = centroids;
+    clusters_points[clusters] = centroids;
+    return clusters_points;
+}
+
+void KMeansBasic::bisectingKmeans(std::vector<std::vector<float>> data, int total_clusters){
+    int accepted_clusters_count = 0;
+    std::map<int, std::vector<std::vector<float>>> final_clusters;
+    std::vector<std::vector<float>> final_centroids;
+    
+    while(accepted_clusters_count <= (total_clusters-2)){
+        
+        std::map<int, std::vector<std::vector<float>>> bisected_clusters;
+        bisected_clusters = KMeans(data, 2);
+        
+        std::vector<std::vector<float>> cluster1 = bisected_clusters[0];
+        std::vector<std::vector<float>> cluster2 = bisected_clusters[1];
+        
+        std::vector<std::vector<float>> centroid = bisected_clusters[2];
+        std::vector<float> centroid1 = centroid.at(0);
+        std::vector<float> centroid2 = centroid.at(1);
+        
+        if(accepted_clusters_count == (total_clusters-2)){
+            final_clusters[accepted_clusters_count] = cluster1;
+            final_centroids.push_back(centroid1);
+            final_clusters[accepted_clusters_count+1] = cluster2;
+            final_centroids.push_back(centroid2);
+            break;
+        }
+        
+        float sse1 = getSumOfSquaredError(cluster1, centroid1);
+        float sse2 = getSumOfSquaredError(cluster2, centroid2);
+        
+        if(sse1 > sse2){
+            //accept cluster 2
+            final_clusters[accepted_clusters_count] = cluster2;
+            final_centroids.push_back(centroid2);
+            data = cluster1;
+        }else{
+            //accept cluster1;
+            final_clusters[accepted_clusters_count] = cluster1;
+            final_centroids.push_back(centroid1);
+            data = cluster2;
+        }
+        
+        accepted_clusters_count++;
+    }
+    std::cout << "Bisecting Done" << std::endl;
+    clusters_points_final = final_clusters;
+    centroids_final = final_centroids;
+}
+
+float KMeansBasic::getSumOfSquaredError(std::vector<std::vector<float> > cluster, std::vector<float> centroid){
+    int arity = centroid.size();
+    float sum_of_square_error = 0;
+    
+    for(auto point : cluster){
+        for(int i=0; i<arity; i++){
+            sum_of_square_error += pow((point.at(i) - centroid.at(i)), 2);
+        }
+    }
+    
+    return sum_of_square_error;
 }
 
 bool KMeansBasic::checkIndexInArray(int index, std::vector<int> arr)
@@ -402,13 +465,12 @@ float KMeansBasic::getDistance(std::vector<float> x, std::vector<float> y){
 void KMeansBasic::write_ouput_to_file(){
     if(normalize){
         //un normalize the data and write it into files.
-        std::string clusters_center_basic_normalized = "sp0090ClusterCenterNormalizedBasic" + std::to_string(clusters) + input_file;
-        std::string clusters_points_basic_normalized = "sp0090ClusteringNormalizedBasic" + std::to_string(clusters) + input_file;
-        std::string clusters_center_basic_unnormalized = "sp0090ClusterCenterUnnormalizedBasic" + std::to_string(clusters) + input_file;
-        std::string clusters_points_basic_unnormalized = "sp0090ClusteringUnnormalizedBasic" + std::to_string(clusters) + input_file;
+        std::string clusters_center_bisect_normalized = "sp0090ClusterCenterNormalizedBisecting" + std::to_string(clusters) + input_file;
+        std::string clusters_points_bisect_normalized = "sp0090ClusteringNormalizedBisecting" + std::to_string(clusters) + input_file;
+        std::string clusters_center_bisect_unnormalized = "sp0090ClusterCenterUnnormalizedBisecting" + std::to_string(clusters) + input_file;
+        std::string clusters_points_bisect_unnormalized = "sp0090ClusteringUnnormalizedBisecting" + std::to_string(clusters) + input_file;
         
-        
-        std::ofstream off(clusters_center_basic_normalized);
+        std::ofstream off(clusters_center_bisect_normalized);
         for(auto it: header_data){
             off << it;
         }
@@ -425,22 +487,25 @@ void KMeansBasic::write_ouput_to_file(){
         off.close();
         
         
-        std::ofstream off_points(clusters_points_basic_normalized);
+        std::ofstream off_points(clusters_points_bisect_normalized);
         for(auto it: header_data){
             off_points << it;
         }
         off_points << "@attribute cluster real\n";
         off_points << "@data\n";
-        for(int i=0; i < cluster_index_for_file_final.size(); i++){
-            int cluster_num = cluster_index_for_file_final[i];
-            for(auto data: row_data.at(i)){
-                off_points << std::to_string(data) << " ";
+        for(auto it = clusters_points_final.begin(); it != clusters_points_final.end(); it++){
+            auto points = it->second;
+            for(auto point: points){
+                for(auto val: point){
+                    off_points << val << " ";
+                }
+                off_points << std::to_string(it->first) << " \n";
             }
-            off_points << std::to_string(cluster_num) << " \n";
         }
         off_points.close();
         
-        std::ofstream off_unnorm(clusters_center_basic_unnormalized);
+        
+        std::ofstream off_unnorm(clusters_center_bisect_unnormalized);
         for(auto it: header_data){
             off_unnorm << it;
         }
@@ -459,31 +524,37 @@ void KMeansBasic::write_ouput_to_file(){
         }
         off_unnorm.close();
         
-        std::ofstream off_points_unnorm(clusters_points_basic_unnormalized);
+        
+        std::ofstream off_points_unnorm(clusters_points_bisect_unnormalized);
         for(auto it: header_data){
             off_points_unnorm << it;
         }
         off_points_unnorm << "@attribute cluster real\n";
         off_points_unnorm << "@data\n";
-        for(int i=0; i < cluster_index_for_file_final.size(); i++){
-            int cluster_num = cluster_index_for_file_final[i];
-            int column = 0;
-            for(auto data: row_data.at(i)){
-                data = data * map_std_mean[column][1] + map_std_mean[column][0];
-                off_points_unnorm << data << " ";
-                column ++;
+
+        for(auto it = clusters_points_final.begin(); it != clusters_points_final.end(); it++){
+            auto points = it->second;
+            for(auto point: points){
+                int column = 0;
+                for(auto val: point){
+                    val = val * map_std_mean[column][1] + map_std_mean[column][0];
+                    off_points_unnorm << val << " ";
+                    column++;
+                }
+                off_points_unnorm << std::to_string(it->first) << " \n";
             }
-            off_points_unnorm << cluster_num << " \n";
         }
+        
         off_points_unnorm.close();
+        
     }
     else{
         // just write data
         
-        std::string clusters_center_basic = "sp0090ClusterCenterBasic" + std::to_string(clusters) + input_file;
-        std::string clusters_points_basic = "sp0090ClusteringBasic" + std::to_string(clusters) + input_file;
-
-        std::ofstream off(clusters_center_basic);
+        std::string clusters_center_bisecting = "sp0090ClusterCenterBisecting" + std::to_string(clusters) + input_file;
+        std::string clusters_points_bisecting = "sp0090ClusteringBisecting" + std::to_string(clusters) + input_file;
+        
+        std::ofstream off(clusters_center_bisecting);
         for(auto it: header_data){
             off << it;
         }
@@ -500,23 +571,25 @@ void KMeansBasic::write_ouput_to_file(){
         off.close();
         
         
-        std::ofstream off_points(clusters_points_basic);
+        std::ofstream off_points(clusters_points_bisecting);
         for(auto it: header_data){
             off_points << it;
         }
         off_points << "@attribute cluster real\n";
         off_points << "@data\n";
-        for(int i=0; i < cluster_index_for_file_final.size(); i++){
-            int cluster_num = cluster_index_for_file_final[i];
-            for(auto data: row_data.at(i)){
-                off_points << std::to_string(data) << " ";
+        for(auto it = clusters_points_final.begin(); it != clusters_points_final.end(); it++){
+            auto points = it->second;
+            for(auto point: points){
+                for(auto val: point){
+                    off_points << val << " ";
+                }
+                off_points << std::to_string(it->first) << " \n";
             }
-            off_points << std::to_string(cluster_num) << " \n";
         }
         off_points.close();
     }
 }
-                
+
 int main(int argc, const char * argv[]) {
     if(argc < 5){
         std::cout << "please run program as program -i <input_file> -k <Number_of_cluster> and other optional arguments (-normalize, -c)" << std::endl;
@@ -541,11 +614,7 @@ int main(int argc, const char * argv[]) {
     KMeansBasic kmeans(file_name, cluster, normalize, class_name);
     kmeans.parseARFFandSetData();
     auto data = kmeans.get_whole_data();
-    // kmeans.KMeans(data, cluster);
-    // kmeans.write_ouput_to_file();
-    
-    // ARFFParser a = ARFFParser(file_name, "sp0090Normalize" + file_name, class_name);
-    //a.parse();
-    //a.computeZScoreNormalization();
+    kmeans.bisectingKmeans(data, cluster);
+    kmeans.write_ouput_to_file();
     return 0;
 }
