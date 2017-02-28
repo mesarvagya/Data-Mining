@@ -99,22 +99,31 @@ void ARFFParser::parse(){
                 if(!class_column_found){
                     attrib_count++;
                     skip_attribute_number++;
+                    header_data.push_back(line);
                 }
                 else
                     attrib_count++;
                 
             }
-            header_data.push_back(line);
+            
         }
         
         if(data_begin){
             std::istringstream ss(line);
             std::vector<float> row_data;
+            int skip_class = 0;
             do{
                 std::string sub;
                 ss >> sub;
-                if(!sub.empty())
-                    row_data.push_back(std::stof(sub));
+                if(!sub.empty()){
+                    if(skip_class == skip_attribute_number)
+                        continue;
+                    else
+                        row_data.push_back(std::stof(sub));
+                    skip_class++;
+                    
+                }
+                
             }while(ss);
             data.push_back(row_data);
         }
@@ -203,11 +212,15 @@ std::vector<std::vector<float>> ARFFParser::get_row_data_normalized(){
         std::vector<std::vector<float>> computed_values;
         for(int i(0); i < attrib_count; i++){
             if(i == skip_attribute_number){
+                // do nothing. there is no handling for class attribute.
+                continue;
+                /*
                 std::vector<float> temp_data;
                 for(auto row: data){
                     temp_data.push_back(row.at(i));
                 }
                 computed_values.push_back(temp_data);
+                 */
             }
             else{
                 std::vector<float> temp_data;
@@ -221,7 +234,8 @@ std::vector<std::vector<float>> ARFFParser::get_row_data_normalized(){
         for(int j(0); j < computed_values[0].size(); j++){
             std::vector<float> row_data;
             for(int i(0); i < attrib_count; i++){
-                row_data.push_back(computed_values.at(i).at(j));
+                if(i != skip_attribute_number)
+                    row_data.push_back(computed_values.at(i).at(j));
             }
             all_row_data.push_back(row_data);
             }
