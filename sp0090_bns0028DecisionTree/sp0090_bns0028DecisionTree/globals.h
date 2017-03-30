@@ -15,4 +15,10 @@
 typedef std::vector<std::string> vs;
 typedef std::vector<std::vector<std::string>> vvs;
 
+typedef struct node {
+    std::string splitOn;
+    std::string label;
+    vs childrenValues;
+    std::vector<node*> children;
+} Node;
 #endif /* globals_h */
