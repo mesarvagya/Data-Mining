@@ -1,0 +1,23 @@
+@relation kmtest@attribute x real@attribute y real@attribute cluster real
+@data
+2 4 0 
+3 3 0 
+3 4 0 
+3 5 0 
+4 3 0 
+4 5 0 
+9 9 1 
+9 10 1 
+10 9 1 
+10 10 1 
+11 10 1 
+9 4 2 
+9 5 2 
+10 4 2 
+10 5 2 
+15 4 2 
+15 5 2 
+15 6 2 
+16 4 2 
+16 5 2 
+16 6 2 
