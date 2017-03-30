@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include "sp0090_bns0028ARFFParser.hpp"
+#include "sp0090_bns0028DecisionTree.h"
 
 int main(int argc, const char * argv[]) {
     // insert code here...
@@ -32,5 +33,9 @@ int main(int argc, const char * argv[]) {
     ARFFParser arrf(file_name, class_name);
     arrf.parse();
     vvs table_data = arrf.get_tabular_data();
+    Node *root = new Node;
+    DecisionTree dt(table_data, root);
+    vvs tableInfo = dt.getTableInfo();
+    root = dt.buildDecisionTree(table_data, root, tableInfo);
     return 0;
 }

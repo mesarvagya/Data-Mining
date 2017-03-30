@@ -13,10 +13,15 @@
 class DecisionTree {
 private:
     vvs table;
+    Node* root;
+    vvs tableInfo;
     
 public:
-    DecisionTree();
-    ~DecisionTree();
+    DecisionTree(vvs table, Node* root);
+    vvs getTableInfo();
+    Node* buildDecisionTree(vvs&, Node*, vvs&);
+    bool isTableEmpty(vvs&);
+    bool isDataHomogenous(vvs&);
     
 };
 
