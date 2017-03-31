@@ -340,9 +340,10 @@ void DecisionTree::writeTreeRecursively(Node * dt, std::ofstream & dtTrainingOut
     {
         return;
     }
+    
     if (dt->isLeaf)
     {
-        dtTrainingOutfile << " class = " << dt->label;
+        dtTrainingOutfile << "  " << dt->label;
     }
     else if (!dt->isLeaf && !dt->children.empty())
     {

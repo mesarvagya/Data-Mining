@@ -63,7 +63,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-i /Users/sarvagya/Downloads/bcwdisc.arff -c class -T 80"
+            argument = "-i /Users/sarvagya/Downloads/bcwdisc.arff -c class -T 60"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

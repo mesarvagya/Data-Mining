@@ -37,10 +37,16 @@ int main(int argc, const char * argv[]) {
     msvs tableInfo = arrf.get_info_map();
     vs classData = arrf.get_class_data();
     
+    int trainingRecordsCount = (int)(percentage * (table_data.size() - 1) / 100);
+    vvs trainingDataset(table_data.begin(), table_data.end() - (table_data.size() - trainingRecordsCount));
+    
     Node *dt = new Node;
-    DecisionTree decisionTree(table_data, tableInfo);
+    DecisionTree decisionTree(trainingDataset, tableInfo);
     std::cout << "Generating Decision Tree ..." << std::endl;
-    dt = decisionTree.generateDecisionTree(table_data, tableInfo, dt);
+    
+    
+    
+    dt = decisionTree.generateDecisionTree(trainingDataset, tableInfo, dt);
     
     decisionTree.writeTreeToFile(dt, "/Users/sarvagya/Desktop/aalu.dt");
     
