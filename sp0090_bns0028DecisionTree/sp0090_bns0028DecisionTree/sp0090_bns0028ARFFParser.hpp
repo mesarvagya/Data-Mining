@@ -29,6 +29,11 @@ private:
     int attrib_count;
     int skip_attribute_number;
     vs attribute_names;
+    std::vector<std::string> attributeVals;
+    msvs attributeInfoMap;
+    vs classData;
+    std::string relationName;
+    vvs main_table_data;
     
 public:
     ARFFParser(std::string input_file, std::string class_name);
@@ -39,6 +44,19 @@ public:
     vs get_header_data();
     vvs get_row_data();
     vvs get_tabular_data();
+    msvs get_info_map(){
+        return attributeInfoMap;
+    }
+    vs get_class_data(){
+        return classData;
+    }
+    std::string get_relation_name(){
+        return relationName;
+    }
+    std::vector<std::string> getAttributeNames() { return attribute_names; }
+    std::vector<std::string> getAttributeVals() { return attributeVals; }
+    vvs get_data() { return main_table_data; }
+
     
 };
 

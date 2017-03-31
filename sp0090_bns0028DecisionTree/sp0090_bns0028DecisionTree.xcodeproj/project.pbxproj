@@ -10,6 +10,7 @@
 		D6AD7CDA1E8D49DD007D17DF /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6AD7CD91E8D49DD007D17DF /* main.cpp */; };
 		D6AD7CE21E8D4A15007D17DF /* sp0090_bns0028DecisionTree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6AD7CE11E8D4A15007D17DF /* sp0090_bns0028DecisionTree.cpp */; };
 		D6AD7CE51E8D4A3C007D17DF /* sp0090_bns0028ARFFParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6AD7CE31E8D4A3C007D17DF /* sp0090_bns0028ARFFParser.cpp */; };
+		D6AD7D051E8EC216007D17DF /* sp0090_bns0028ARRFWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6AD7D031E8EC216007D17DF /* sp0090_bns0028ARRFWriter.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -32,6 +33,8 @@
 		D6AD7CE31E8D4A3C007D17DF /* sp0090_bns0028ARFFParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sp0090_bns0028ARFFParser.cpp; sourceTree = "<group>"; };
 		D6AD7CE41E8D4A3C007D17DF /* sp0090_bns0028ARFFParser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = sp0090_bns0028ARFFParser.hpp; sourceTree = "<group>"; };
 		D6AD7CE61E8D4A9C007D17DF /* globals.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = globals.h; sourceTree = "<group>"; };
+		D6AD7D031E8EC216007D17DF /* sp0090_bns0028ARRFWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sp0090_bns0028ARRFWriter.cpp; sourceTree = "<group>"; };
+		D6AD7D041E8EC216007D17DF /* sp0090_bns0028ARRFWriter.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = sp0090_bns0028ARRFWriter.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,6 +73,8 @@
 				D6AD7CE31E8D4A3C007D17DF /* sp0090_bns0028ARFFParser.cpp */,
 				D6AD7CE41E8D4A3C007D17DF /* sp0090_bns0028ARFFParser.hpp */,
 				D6AD7CE61E8D4A9C007D17DF /* globals.h */,
+				D6AD7D031E8EC216007D17DF /* sp0090_bns0028ARRFWriter.cpp */,
+				D6AD7D041E8EC216007D17DF /* sp0090_bns0028ARRFWriter.hpp */,
 			);
 			path = sp0090_bns0028DecisionTree;
 			sourceTree = "<group>";
@@ -132,6 +137,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D6AD7CE51E8D4A3C007D17DF /* sp0090_bns0028ARFFParser.cpp in Sources */,
+				D6AD7D051E8EC216007D17DF /* sp0090_bns0028ARRFWriter.cpp in Sources */,
 				D6AD7CDA1E8D49DD007D17DF /* main.cpp in Sources */,
 				D6AD7CE21E8D4A15007D17DF /* sp0090_bns0028DecisionTree.cpp in Sources */,
 			);
