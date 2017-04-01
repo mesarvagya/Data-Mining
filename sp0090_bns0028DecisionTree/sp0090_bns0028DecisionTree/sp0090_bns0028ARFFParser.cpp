@@ -1,10 +1,3 @@
-//
-//  sp0090_bns0028ARFFParser.cpp
-//  sp0090_bns0028DecisionTree
-//
-//  Created by Sarvagya Pant on 3/30/17.
-//  Copyright © 2017 sarvagya. All rights reserved.
-//
 
 #include "sp0090_bns0028ARFFParser.hpp"
 
@@ -58,10 +51,6 @@ void ARFFParser::parse(){
                 attributeVals.push_back(attrVal);
                 
                 std::cout << "Attribute is : " << attrName << "\t" << attrVal  << "\t" << std::endl;
-                // size_t final_index = attrVal.find_first_of("}");
-                // size_t read_index = 0L;
-                // std::cout << "Val start end is : " << read_index << final_index << std::endl;
-                
                 std::stringstream ss(attrVal);
                 std::string i;
                 vs attrValV;
@@ -77,34 +66,7 @@ void ARFFParser::parse(){
                 }
                 attributeInfoMap[attrName] = attrValV;
                 
-            }
-            
-            
-            /*
-            if(pos2 != std::string::npos){
-                class_column_found = true;
-                attrib_count++;
-                if (std::regex_search(line, match, regex) && match.size() > 1) {
-                    attribute_names.push_back(match.str(1));
-                } else {
-                    //result = std::string("");
-                }
-            }
-            else if(pos != std::string::npos){
-                if(!class_column_found){
-                    attrib_count++;
-                    skip_attribute_number++;
-                    header_data.push_back(line);
-                    if (std::regex_search(line, match, regex) && match.size() > 1) {
-                        attribute_names.push_back(match.str(1));
-                    } else {
-                        //result = std::string("");
-                    }
-                }
-                else
-                    attrib_count++;
-            }*/
-            
+            }            
         }
         
         if(data_begin){

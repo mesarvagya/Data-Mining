@@ -1,10 +1,3 @@
-//
-//  globals.h
-//  sp0090_bns0028DecisionTree
-//
-//  Created by Sarvagya Pant on 3/30/17.
-//  Copyright © 2017 sarvagya. All rights reserved.
-//
 
 #ifndef globals_h
 #define globals_h
@@ -26,15 +19,6 @@ typedef std::map<std::string, int> msi;
 typedef std::vector<double> vd;
 typedef std::map<std::string, std::vector<std::string>> msvs;
 
-/*
-typedef struct node {
-    std::string splitOn;
-    std::string label;
-    bool isLeaf;
-    vs childrenValues;
-    std::vector<node*> children;
-} Node;
- */
 struct node {
     std::string splitOn;
     std::string label;
@@ -42,4 +26,4 @@ struct node {
     vs childrenValues;
     std::vector<node*> children;
 };
-#endif /* globals_h */
+#endif 

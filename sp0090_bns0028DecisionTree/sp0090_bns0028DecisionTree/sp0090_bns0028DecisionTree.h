@@ -1,24 +1,13 @@
-//
-//  rp0037DecisionTree.hpp
-//  cs641
-//
-//  Created by Ritesh Pradhan on 2/26/16.
-//  Copyright © 2016 Ritesh Pradhan. All rights reserved.
-//
 
-#ifndef rp0037DecisionTree_hpp
-#define rp0037DecisionTree_hpp
+#ifndef sp0090_bns0028DecisionTree_hpp
+#define sp0090_bns0028DecisionTree_hpp
 
 #include <iostream>
 #include <vector>
 #include <cmath>
 #include <map>
 #include <fstream>
-//#include <sstream>
 #include <iomanip>
-
-//#include "rp0037ArffParser.cpp"
-
 
 using namespace std;
 
@@ -29,13 +18,13 @@ typedef vector<vs> vvs;
 typedef map<string, int> msi;
 typedef map<string, vs> msvs;
 
-typedef struct Node // struct node defines the structure of a node of the decision tree
+typedef struct Node
 {
-    string splitAttribute;       // Stores which attribute to split on at a particular node
-    string label;			// Stores the class label for leaf nodes. For nodes that are not leaf nodes, it stores the value of the attribute of the parent's' split
-    bool isLeaf;			// boolean flag for leaf nodes
-    vector<string> childrenValues;			// Stores the values of the childrens' attributes
-    vector<Node*> children;			// Stores pointers to the children of a node
+    string splitAttribute;      
+    string label;			
+    bool isLeaf;			
+    vector<string> childrenValues;			
+    vector<Node*> children;			
 } Node;
 
 class DecisionTree
@@ -50,66 +39,52 @@ private:
     ofstream dtFile;
     
 public:
-    /** Constructor **/
     DecisionTree();
     DecisionTree(vvs&, msvs&); //{}
-    
-    /** Destructor **/
+
     ~DecisionTree() {}
+
+    Node* dt_generator(vvs&, msvs&, Node*);
     
-    /**
-     *   Parse the given arff file
-     *   @param  string filename - input filepath/filename
-     */
+    bool is_table_empty(vvs&);   
     
+    bool is_homogeneous(vvs&);   
     
-    /*
-     *   Write to arff file
-     *   @param  string filename - output filepath/filename
-     */
-    Node* generateDecisionTree(vvs&, msvs&, Node*);					// Builds the decision tree based on the table it is passed
+    bool is_homogeneous_records(vvs&); 
     
-    bool isTableEmpty(vvs&);    //Returns true if a subtable is empty
+    double calculate_gini(vvs&table);    
     
-    bool isHomogeneous(vvs&);   //Returns true if all instances in a subtable at a node have the same class label
+    string get_splitting_attribute(vvs&); 
     
-    bool isHomogeneousRecords(vvs&); //Returns true if all instances table has same records values.
+    vvs table_trimmer(vvs&, string&, string);   
     
-    double calculateGini(vvs&table);    //Calculate gini of any table based of class
+    void print_table(vvs&);								
     
-    string getSplittingAttribute(vvs&); //Returns the attribute on which to split on. Decision of column is based on GINI
+    int countDistinct(vvs&, int);								
     
-    vvs trimTable(vvs&, string&, string);   // Prunes a table based on a column/attribute's name and the value of that attribute. Removes that column and all instances that have that value for that column
+    vi distinct_attribute_values_count(vvs&, string);								
     
-    void printTable(vvs&);								// For debugging purposes only. Prints a data table
+    int return_attribute_index(string&);						 
     
+    double print_predictions_and_cal_accuracy (vs&, vs&); 
     
-    int countDistinct(vvs&, int);								// Returns a vector of integers containing the counts of all the various values of an attribute/column
+    string get_class_with_maxcount(vvs &);   
     
-    vi countDistinctAttributeValues(vvs&, string);								// Returns a vector of integers containing the counts of all the various values of an attribute/column
+    void tree_to_file_writer(Node *, string); 
+
+    int return_index_of_vector(vs&, string);                        
     
-    int returnAttributeIndex(string&);						// Returns the index of a column in a subtable
+    void print_decision_tree(Node*, int depth=0);                               
     
-    int returnIndexOfVector(vs&, string);						// Returns the index of a string in a vector of strings
+    string get_most_frequent_class(vvs &); 
     
-    void printDecisionTree(Node*, int depth=0);								// For degubbing purposes only. Recursively prints decision tree
+    string test_data_on_dt(vs&, Node*); 
     
-    string getMostFrequentClass(vvs &); // Returns the most frequent class from the training data. This class is used as the default class during the testing phase
+    void write_tree_recursively(Node* , std::ofstream &, int depth=0);    
     
-    string testDataOnDecisionTree(vs&, Node*);  //Test a single record
+    vvi confusion_matrix_generator  (vs&, vs&);     
     
-    double printPredictionsAndCalculateAccuracy(vs&, vs&);  //Print and test accuracy for testing purpose
-    
-    string getClassWithMaxCount(vvs &);     // Returns class with max counts for labeling the leaf with homogenous recoreds.
-    
-    void writeTreeToFile(Node *, string);       // Write generated decisiont tree to file in depth first approach.
-    
-    void writeTreeRecursively(Node* , std::ofstream &, int depth=0);    // Write tree recursively to a file
-    
-    vvi generateConfusionMatrix(vs&, vs&);      // generates and returns confusion matrix.
-    
-    void writeConfusionMatrix(string&, vs&, vs&);   // Write confision matrix and accuracy to outfile.
-    
+    void write_confusion_matrix(string&, vs&, vs&);   
 };
 
-#endif /* rp0037DecisionTree_hpp */
+#endif 

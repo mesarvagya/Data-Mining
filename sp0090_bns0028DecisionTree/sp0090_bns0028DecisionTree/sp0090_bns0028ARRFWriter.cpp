@@ -1,10 +1,3 @@
-//
-//  rp0037ArffWriter.cpp
-//  cs641
-// Ritesh Pradhan
-//  Created by Ritesh Pradhan on 1/27/16.
-//  Copyright © 2016 Ritesh Pradhan. All rights reserved.
-//
 
 #include "sp0090_bns0028ARRFWriter.hpp"
 #include <cassert>
@@ -17,7 +10,7 @@ ArffWriter::ArffWriter(std::string fileName)
     outFile.open(fileName.c_str());
 }
 
-void ArffWriter::writeRelation(std::string relationName)
+void ArffWriter::relation_writer(std::string relationName)
 {
     if (!outFile)
     {
@@ -26,7 +19,7 @@ void ArffWriter::writeRelation(std::string relationName)
     outFile << "@relation" << SPACE << relationName << std::endl;
 }
 
-void ArffWriter::writeAttributes(std::vector<std::string> attrNames, std::vector<std::string> attrVals)
+void ArffWriter::attributes_writter(std::vector<std::string> attrNames, std::vector<std::string> attrVals)
 {
     if (!outFile)
     {
@@ -40,7 +33,7 @@ void ArffWriter::writeAttributes(std::vector<std::string> attrNames, std::vector
     }
 }
 
-void ArffWriter::writeData(std::vector<std::vector<string> > data, std::vector<string> classAttr,  bool includeClass, std::string delimeter)
+void ArffWriter::data_writer(std::vector<std::vector<string> > data, std::vector<string> classAttr,  bool includeClass, std::string delimeter)
 {
     if (!outFile)
     {
@@ -63,7 +56,7 @@ void ArffWriter::writeData(std::vector<std::vector<string> > data, std::vector<s
     outFile.close();
 }
 
-void ArffWriter::writeSingleLine(std::string singleLine)
+void ArffWriter::single_line_writer(std::string singleLine)
 {
     if (!outFile)
     {

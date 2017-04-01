@@ -1,10 +1,3 @@
-//
-//  sp0090_bns0028ARFFParser.hpp
-//  sp0090_bns0028DecisionTree
-//
-//  Created by Sarvagya Pant on 3/30/17.
-//  Copyright © 2017 sarvagya. All rights reserved.
-//
 
 #ifndef sp0090_bns0028ARFFParser_hpp
 #define sp0090_bns0028ARFFParser_hpp
@@ -60,4 +53,4 @@ public:
     
 };
 
-#endif /* sp0090_bns0028ARFFParser_hpp */
+#endif 
