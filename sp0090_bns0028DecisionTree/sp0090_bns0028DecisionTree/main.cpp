@@ -39,10 +39,14 @@ int main(int argc, const char * argv[]) {
     DecisionTree decisionTree(trainingDataset, tableInfo);
     std::cout << "Generating Decision Tree ..." << std::endl;
     
-    
+    file_name.pop_back();
+    file_name.pop_back();
+    file_name.pop_back();
+    file_name.pop_back();
+    file_name.pop_back();
     
     dt = decisionTree.dt_generator(trainingDataset, tableInfo, dt);
-    std::string dt_name = "/Users/bid/sp0090_bns0028DTTrain" + M + "InputFile.dt";
+    std::string dt_name = "sp0090_bns0028DTTrain" + M + file_name + ".dt";
     decisionTree.tree_to_file_writer(dt, dt_name);
     
     vs predictions;
@@ -51,11 +55,11 @@ int main(int argc, const char * argv[]) {
         predictions.push_back(decisionTree.test_data_on_dt(table_data[i], dt));
     }
 
-    std::cout  << "Writing confusionMatrix and accuracy to file : " << "..."  << std::endl;
-    std::string temp = "/Users/bid/sp0090_bns0028DTAccuracy" + M + "InputFile.dt";
+    std::cout  << "Writing confusionMatrix and accuracy to file : " << std::endl;
+    std::string temp = "sp0090_bns0028DTAccuracy" + M + file_name + ".dt";
     decisionTree.write_confusion_matrix(temp, classData, predictions);
 
-    std::string dtApplicationOutFile = "/Users/bid/sp0090_bns0028DTApply" + M + "InputFile.arff";
+    std::string dtApplicationOutFile = "sp0090_bns0028DTApply" + M + file_name + ".arff";
     std::cout  << "Writing predictions to file : " << dtApplicationOutFile  << "..." << std::endl;
     ArffWriter dtApplicationPredictedArff(dtApplicationOutFile);
     dtApplicationPredictedArff.relation_writer(arrf.get_relation_name());
