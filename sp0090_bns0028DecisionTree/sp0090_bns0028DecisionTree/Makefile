@@ -5,10 +5,10 @@ CXXFLAGS = -Wall $(DEBUG) -std=c++11
 SRCS = main.cpp sp0090_bns0028ARFFParser.cpp sp0090_bns0028ARRFWriter.cpp sp0090_bns0028DecisionTree.cpp
 OBJS = $(subst .cpp,.o,$(SRCS))
 
-all: sp0090_bns0028DecitionTree
+all: sp0090_bns0028DecisionTree
 
-sp0090_bns0028DecitionTree: $(OBJS)
-	$(CXX) $(CXXFLAGS) -o sp0090_bns0028DecitionTree $(OBJS)
+sp0090_bns0028DecisionTree: $(OBJS)
+	$(CXX) $(CXXFLAGS) -o sp0090_bns0028DecisionTree $(OBJS)
 
 main.o: main.cpp sp0090_bns0028ARFFParser.hpp sp0090_bns0028ARRFWriter.hpp sp0090_bns0028DecisionTree.h globals.h
 	$(CXX) $(CXXFLAGS) -c main.cpp
@@ -25,5 +25,5 @@ DecisionTree.o: sp0090_bns0028DecisionTree.h globals.h
 .PHONY: clean
 
 clean:
-	rm -f sp0090_bns0028DecitionTree *.o *.gch
+	rm -f sp0090_bns0028DecisionTree *.o *.gch
 
