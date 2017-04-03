@@ -55,8 +55,8 @@ int main(int argc, const char * argv[]) {
         predictions.push_back(decisionTree.test_data_on_dt(table_data[i], dt));
     }
 
-    std::cout  << "Writing confusionMatrix and accuracy to file : " << std::endl;
     std::string temp = "sp0090_bns0028DTAccuracy" + M + file_name + ".dt";
+    std::cout  << "Writing confusionMatrix and accuracy to file : "<<temp<< std::endl;
     decisionTree.write_confusion_matrix(temp, classData, predictions);
 
     std::string dtApplicationOutFile = "sp0090_bns0028DTApply" + M + file_name + ".arff";
