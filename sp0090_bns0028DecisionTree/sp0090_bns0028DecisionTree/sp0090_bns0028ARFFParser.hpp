@@ -1,4 +1,12 @@
 
+
+/**
+ sp0090_bns0028ARFFParser.hpp
+ Sarvagya Pant
+ Bidhya Nandan Sharma
+ April 3, 2017
+ **/
+
 #ifndef sp0090_bns0028ARFFParser_hpp
 #define sp0090_bns0028ARFFParser_hpp
 

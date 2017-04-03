@@ -1,4 +1,12 @@
 
+
+/**
+ sp0090_bns0028ARRFWriter.hpp
+ Sarvagya Pant
+ Bidhya Nandan Sharma
+ April 3, 2017
+ **/
+
 #ifndef sp0090_bns0028ArffWriter_hpp
 #define sp0090_bns0028ArffWriter_hpp
 

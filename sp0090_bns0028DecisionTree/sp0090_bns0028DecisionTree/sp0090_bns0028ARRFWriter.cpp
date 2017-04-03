@@ -1,4 +1,12 @@
 
+/**
+ sp0090_bns0028ARRFWriter.cpp
+ Sarvagya Pant
+ Bidhya Nandan Sharma
+ April 3, 2017
+ **/
+
+
 #include "sp0090_bns0028ARRFWriter.hpp"
 #include <cassert>
 

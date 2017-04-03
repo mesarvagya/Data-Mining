@@ -1,4 +1,13 @@
 
+
+/**
+ globals.h
+ Sarvagya Pant
+ Bidhya Nandan Sharma
+ April 3, 2017
+ **/
+
+
 #ifndef globals_h
 #define globals_h
 
