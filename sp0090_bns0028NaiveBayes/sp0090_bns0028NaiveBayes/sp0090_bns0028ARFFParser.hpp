@@ -1,11 +1,10 @@
-
-
-/**
- sp0090_bns0028ARFFParser.hpp
- Sarvagya Pant
- Bidhya Nandan Sharma
- April 3, 2017
- **/
+//
+//  sp0090_bns0028ARFFParser.hpp
+//  sp0090_bns0028NaiveBayes
+//
+//  Created by Sarvagya Pant on 4/16/17.
+//  Copyright © 2017 sarvagya. All rights reserved.
+//
 
 #ifndef sp0090_bns0028ARFFParser_hpp
 #define sp0090_bns0028ARFFParser_hpp
@@ -14,9 +13,9 @@
 #include <cstring>
 #include <sstream>
 #include <fstream>
-// #include <regex>
+#include <regex>
 
-#include "globals.h"
+#include "globals.hpp"
 
 class ARFFParser{
     
@@ -57,8 +56,8 @@ public:
     std::vector<std::string> getAttributeNames() { return attribute_names; }
     std::vector<std::string> getAttributeVals() { return attributeVals; }
     vvs get_data() { return main_table_data; }
-
+    
     
 };
 
-#endif 
+#endif /* sp0090_bns0028ARFFParser_hpp */

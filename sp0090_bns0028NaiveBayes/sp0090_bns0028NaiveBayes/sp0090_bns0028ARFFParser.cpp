@@ -1,15 +1,12 @@
-
-/**
- sp0090_bns0028ARFFParser.cpp
- Sarvagya Pant
- Bidhya Nandan Sharma
- April 3, 2017
- **/
-
-
+//
+//  sp0090_bns0028ARFFParser.cpp
+//  sp0090_bns0028NaiveBayes
+//
+//  Created by Sarvagya Pant on 4/16/17.
+//  Copyright © 2017 sarvagya. All rights reserved.
+//
 
 #include "sp0090_bns0028ARFFParser.hpp"
-
 
 ARFFParser::ARFFParser(std::string input_file, std::string class_name){
     this->input_file = input_file;
@@ -26,8 +23,6 @@ void ARFFParser::parse(){
     skip_attribute_number = 0;
     std::string attribute_class = "@attribute " + std::string(class_name);
     bool class_column_found = false;
-    // std::regex regex("\\@attribute\\s+(\\w+)\\s+\\{");
-    // std::smatch match;
     
     while (std::getline(filestream, line)){
         if(line.empty())
@@ -59,7 +54,7 @@ void ARFFParser::parse(){
                 std::string attrVal = attrLine.substr(attrName.size());
                 attributeVals.push_back(attrVal);
                 
-                std::cout << "Attribute is : " << attrName << "\t" << attrVal  << "\t" << std::endl;
+                //std::cout << "Attribute is : " << attrName << "\t" << attrVal  << "\t" << std::endl;
                 std::stringstream ss(attrVal);
                 std::string i;
                 vs attrValV;
@@ -74,8 +69,7 @@ void ARFFParser::parse(){
                     attrValV.push_back(val);
                 }
                 attributeInfoMap[attrName] = attrValV;
-                
-            }            
+            }
         }
         
         if(data_begin){
@@ -133,4 +127,3 @@ vvs ARFFParser::get_tabular_data(){
     main_table_data = table_data;
     return table_data;
 }
-
