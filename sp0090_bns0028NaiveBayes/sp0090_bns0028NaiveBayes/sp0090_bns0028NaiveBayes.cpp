@@ -13,4 +13,18 @@ NaiveBayesClassifier::NaiveBayesClassifier(vvs& table, msvs& table_info, int sta
     this->table_info = table_info;
     this->start_index = start_index;
     this->end_index = end_index;
+    class_attribute = table[0][table[0].size()-1];
+    class_values = table_info.find(class_attribute)->second;
 }
+
+void NaiveBayesClassifier::set_train_test_indexes(){
+    for(int i=start_index; i <= end_index; i++){
+        test_table_indexes.push_back(i);
+    }
+    for(int i=0; i < table.size(); i++){
+        if(i<start_index || i>end_index){
+            train_table_indexes.push_back(i);
+        }
+    }
+}
+

@@ -43,6 +43,7 @@ int main(int argc, const char * argv[]) {
         int start_index = i * test_number_record;
         int end_index = (i+1) * test_number_record;
         NaiveBayesClassifier nbc(data, tableInfo, start_index, end_index);
+        nbc.set_train_test_indexes();
         
         
         
