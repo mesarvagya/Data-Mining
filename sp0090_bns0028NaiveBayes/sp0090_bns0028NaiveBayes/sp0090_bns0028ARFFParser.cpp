@@ -73,7 +73,7 @@ void ARFFParser::parse(){
         }
         
         if(data_begin){
-            int class_col = attribute_names.size() - 1;
+            int class_col = (int)attribute_names.size() - 1;
             std::istringstream ss(line);
             vs row_data;
             int counter = 0;

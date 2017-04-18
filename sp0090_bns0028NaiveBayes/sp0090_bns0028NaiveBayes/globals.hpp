@@ -25,5 +25,6 @@ typedef std::vector<std::vector<std::string>> vvs;
 typedef std::map<std::string, int> msi;
 typedef std::vector<double> vd;
 typedef std::map<std::string, std::vector<std::string>> msvs;
+typedef std::map<std::string, std::map<std::string, std::map<std::string, int>>> smsmsi;
 
 #endif /* globals_h */
