@@ -24,6 +24,7 @@ private:
     std::string class_attribute;
     vs class_values;
     float accuracy;
+    vs correct_labels;
     
 public:
     NaiveBayesClassifier(vvs&, msvs&, int, int); // table, table_info_map, start_index and end_index of the data
@@ -31,6 +32,7 @@ public:
     void generate_model();
     float get_accuracy();
     vs get_predictions();
+    vs get_correctlabels();
 };
 
 #endif /* sp0090_bns0028NaiveBayes_hpp */

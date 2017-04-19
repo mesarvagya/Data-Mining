@@ -39,6 +39,10 @@ vs NaiveBayesClassifier::get_predictions(){
     return this->predictions;
 }
 
+vs NaiveBayesClassifier::get_correctlabels(){
+    return this->correct_labels;
+}
+
 void NaiveBayesClassifier::generate_model(){
     
     smsmsi attr_class_count;
@@ -99,6 +103,7 @@ void NaiveBayesClassifier::generate_model(){
         int data_index = test_table_indexes[i];
         vs test_row_data = table[data_index];
         std::string correct_label = test_row_data[test_row_data.size()-1];
+        this->correct_labels.push_back(correct_label);
         
         float predicted_probab = 0;
         std::string predicted_class;

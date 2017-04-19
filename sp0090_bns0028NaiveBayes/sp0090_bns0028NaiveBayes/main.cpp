@@ -40,6 +40,7 @@ int main(int argc, const char * argv[]) {
     
     std::vector<float> accuracy_list;
     vs all_predictions;
+
     
     for(int i=0; i < folds; i++){
         // naive bayes object here
@@ -49,26 +50,22 @@ int main(int argc, const char * argv[]) {
         if(i == folds - 1)
             end_index = num_of_records;
         
-        std::cout << start_index << " " <<end_index << std::endl;
-        
         NaiveBayesClassifier nbc(data, tableInfo,start_index, end_index);
         nbc.set_train_test_indexes();
         nbc.generate_model();
         float accuracy = nbc.get_accuracy();
         accuracy_list.push_back(accuracy);
         vs predictions = nbc.get_predictions();
+    
         
         for(int i=0; i< predictions.size(); i++){
             all_predictions.push_back(predictions[i]);
         }
-        
-        std::cout << accuracy << std::endl;
     }
     
     int correct_predictions = 0;
-    for(int i=0; i < data.size()-1; i++){
-        vs row_data = data[i];
-        std::string correct_class = row_data[row_data.size()-1];
+    for(int i=0; i < classData.size(); i++){
+        std::string correct_class = classData[i];
         std::string predicted_class = all_predictions[i];
         if(correct_class == predicted_class){
             correct_predictions++;
@@ -76,6 +73,5 @@ int main(int argc, const char * argv[]) {
     }
     
     float overall_accuracy = (float)correct_predictions/(float)num_of_records;
-    std::cout<<overall_accuracy<<std::endl;
     return 0;
 }
