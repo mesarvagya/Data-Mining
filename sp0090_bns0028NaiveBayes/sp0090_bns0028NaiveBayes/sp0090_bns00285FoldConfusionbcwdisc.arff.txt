@@ -1,0 +1,15 @@
+ConfusionMatrix
+         	           PREDICTED
+         	 -----------------------------
+         	         	2         	4
+         	 -----------------------------
+ ACTUAL: 	2 |       431        13
+ ACTUAL: 	4 |         3       236
+
+Accuracy = 667/683 = 97.6574%
+
+K fold iteration # 1 Accuracy is 98.540146 %
+K fold iteration # 2 Accuracy is 96.350365 %
+K fold iteration # 3 Accuracy is 96.350365 %
+K fold iteration # 4 Accuracy is 98.540146 %
+K fold iteration # 5 Accuracy is 98.518524 %

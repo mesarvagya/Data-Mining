@@ -9,6 +9,87 @@
 #include <iostream>
 #include "sp0090_bns0028ARFFParser.hpp"
 #include "sp0090_bns0028NaiveBayes.hpp"
+#include "sp0090_bns0028ARFFWriter.hpp"
+
+
+vvi generateConfusionMatrix(msvs &tableInfoMeta, vs &givenData, vs &predictions)
+{
+    vs classes = tableInfoMeta.find("class")->second;
+    int classCount = (int)(classes.size());
+    vi eachRow (classCount, 0);
+    vvi confusionMatrix(classCount, eachRow);
+    
+    for (size_t i=0; i<givenData.size(); i++)
+    {
+        int row = 0;
+        int col = 0;
+        for (int r=0; r<classCount; r++)
+        {
+            if (givenData[i] == classes[r])
+            {
+                row = r;
+                break;
+            }
+        }
+        for (int c=0; c<classCount; c++)
+        {
+            if (predictions[i] == classes[c])
+            {
+                col = c;
+                break;
+            }
+        }
+        confusionMatrix[row][col] += 1;
+    }
+    
+    return confusionMatrix;
+}
+
+void writeConfusionMatrix(std::string &outFilePath, msvs &tableInfoMeta, vs &givenData, vs &predictions, vf &all_accuracy)
+{
+    double accuracy = 0;
+    std::ofstream nbConfusionFile;
+    nbConfusionFile.open( outFilePath.c_str());
+    nbConfusionFile << "ConfusionMatrix" << std::endl;
+    vvi confusionMatrix = generateConfusionMatrix(tableInfoMeta, givenData, predictions);
+    
+    vs classes = tableInfoMeta.find("class")->second;
+    int classCount = (int)(classes.size());
+    nbConfusionFile << std::setw(10) << "\t" <<  std::setw(20) << "PREDICTED" << std::endl;
+    nbConfusionFile << std::setw(10) << "\t" <<  std::setw(30) << "-----------------------------" << std::endl;
+    nbConfusionFile << std::setw(10) << "\t";
+    for (int i=0; i<classCount; i++)
+    {
+        nbConfusionFile << std::setw(10) << "\t" << classes[i];
+    }
+    nbConfusionFile << std::endl;
+    nbConfusionFile << std::setw(10) << "\t" <<  std::setw(30) << "-----------------------------" << std::endl;
+    for (int r=0; r<classCount; r++)
+    {
+        nbConfusionFile << std::setw(10) << "ACTUAL: \t" << classes[r] << " |";
+        for (int c=0; c<classCount; c++)
+        {
+            nbConfusionFile << std::setw(10) << confusionMatrix[r][c];
+            if (r==c)
+            {
+                accuracy += confusionMatrix[r][c];
+            }
+        }
+        nbConfusionFile << std::endl;
+    }
+    
+    nbConfusionFile << std::endl << "Accuracy = " << accuracy << "/" << givenData.size();
+    accuracy = accuracy * 100 / givenData.size();
+    nbConfusionFile << " = " << accuracy << "%\n" << std::endl;
+    
+    for(int i=0; i < all_accuracy.size(); i++){
+        nbConfusionFile << "K fold iteration # " << std::to_string(i+1) << " Accuracy is " << std::to_string(all_accuracy[i]*100) << " %" << std::endl;
+    }
+    
+    
+    nbConfusionFile.close();
+}
+
 
 int main(int argc, const char * argv[]) {
     if(argc < 5){
@@ -38,7 +119,7 @@ int main(int argc, const char * argv[]) {
     int num_of_records = (int) data.size() - 1;
     int test_number_record = num_of_records / folds;
     
-    std::vector<float> accuracy_list;
+    vf accuracy_list;
     vs all_predictions;
 
     
@@ -73,5 +154,18 @@ int main(int argc, const char * argv[]) {
     }
     
     float overall_accuracy = (float)correct_predictions/(float)num_of_records;
+    
+    std::string naiveBayesOutputFile = "sp0090_bns0028" + std::to_string(folds) + "FoldClassification" + file_name;
+    std::string naiveBayesConfusionMatrix = "sp0090_bns0028" + std::to_string(folds) + "FoldConfusion" + file_name + ".txt";
+    
+    ArffWriter arffWriter(naiveBayesOutputFile);
+    arffWriter.relation_writer(arff.get_relation_name());
+    arffWriter.attributes_writter(arff.getAttributeNames(), arff.getAttributeVals());
+    string class_line = string("@attribute bayesClass real");
+    arffWriter.single_line_writer(class_line);
+    arffWriter.data_writer(arff.get_data(), all_predictions, true);
+    
+    writeConfusionMatrix(naiveBayesConfusionMatrix, tableInfo, classData, all_predictions, accuracy_list);
+    
     return 0;
 }

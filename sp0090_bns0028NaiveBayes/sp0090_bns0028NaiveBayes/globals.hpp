@@ -21,9 +21,11 @@
 
 typedef std::vector<std::string> vs;
 typedef std::vector<int> vi;
+typedef std::vector<std::vector<int>> vvi;
 typedef std::vector<std::vector<std::string>> vvs;
 typedef std::map<std::string, int> msi;
 typedef std::vector<double> vd;
+typedef std::vector<float> vf;
 typedef std::map<std::string, std::vector<std::string>> msvs;
 typedef std::map<std::string, std::map<std::string, std::map<std::string, int>>> smsmsi;
 
